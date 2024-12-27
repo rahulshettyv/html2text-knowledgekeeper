@@ -60,6 +60,13 @@ def main() -> None:
         help="don't include any formatting for emphasis",
     )
     p.add_argument(
+        "--bypass-emphasis",
+        dest="bypass_emphasis",
+        action="store_true",
+        default=config.BYPASS_EMPHASIS,
+        help="Format emphasis tags in HTML rather than Markdown syntax.",
+    )
+    p.add_argument(
         "--reference-links",
         dest="inline_links",
         action="store_false",

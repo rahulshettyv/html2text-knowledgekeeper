@@ -68,6 +68,7 @@ class HTML2Text(html.parser.HTMLParser):
         self.images_to_alt = config.IMAGES_TO_ALT  # covered in cli
         self.images_with_size = config.IMAGES_WITH_SIZE  # covered in cli
         self.ignore_emphasis = config.IGNORE_EMPHASIS  # covered in cli
+        self.bypass_emphasis = config.BYPASS_EMPHASIS  # covered in cli
         self.bypass_tables = config.BYPASS_TABLES  # covered in cli
         self.ignore_tables = config.IGNORE_TABLES  # covered in cli
         self.google_doc = False  # covered in cli
@@ -380,9 +381,14 @@ class HTML2Text(html.parser.HTMLParser):
                 self.o("  \n")
 
         if tag == "hr" and start and not self.ignore_emphasis:
-            self.p()
-            self.o("* * *")
-            self.p()
+            if self.bypass_emphasis:
+                self.p()
+                self.o("<hr>")
+                self.p()
+            else:
+                self.p()
+                self.o("* * *")
+                self.p()
 
         if tag in ["head", "style", "script"]:
             if start:
@@ -415,54 +421,72 @@ class HTML2Text(html.parser.HTMLParser):
             # marks, and we'll be left with eg 'foo_bar_' visible.
             # (Don't add a space otherwise, though, since there isn't one in the
             # original HTML.)
-            if (
-                start
-                and self.preceding_data
-                and self.preceding_data[-1] not in string.whitespace
-                and self.preceding_data[-1] not in string.punctuation
-            ):
-                emphasis = " " + self.emphasis_mark
-                self.preceding_data += " "
+            if self.bypass_emphasis:
+                if start:
+                    self.o("<{}>".format(tag))
+                else:
+                    self.o("</{}>".format(tag))
             else:
-                emphasis = self.emphasis_mark
+                if (
+                    start
+                    and self.preceding_data
+                    and self.preceding_data[-1] not in string.whitespace
+                    and self.preceding_data[-1] not in string.punctuation
+                ):
+                    emphasis = " " + self.emphasis_mark
+                    self.preceding_data += " "
+                else:
+                    emphasis = self.emphasis_mark
 
-            self.o(emphasis)
-            if start:
-                self.stressed = True
+                self.o(emphasis)
+                if start:
+                    self.stressed = True
 
         if tag in ["strong", "b"] and not self.ignore_emphasis:
             # Separate with space if we immediately follow an * character, since
             # without it, Markdown won't render the resulting *** correctly.
             # (Don't add a space otherwise, though, since there isn't one in the
             # original HTML.)
-            if (
-                start
-                and self.preceding_data
-                # When `self.strong_mark` is set to empty, the next condition
-                # will cause IndexError since it's trying to match the data
-                # with the first character of the `self.strong_mark`.
-                and len(self.strong_mark) > 0
-                and self.preceding_data[-1] == self.strong_mark[0]
-            ):
-                strong = " " + self.strong_mark
-                self.preceding_data += " "
+            if self.bypass_emphasis:
+                if start:
+                    self.o("<{}>".format(tag))
+                else:
+                    self.o("</{}>".format(tag))
             else:
-                strong = self.strong_mark
+                if (
+                    start
+                    and self.preceding_data
+                    # When `self.strong_mark` is set to empty, the next condition
+                    # will cause IndexError since it's trying to match the data
+                    # with the first character of the `self.strong_mark`.
+                    and len(self.strong_mark) > 0
+                    and self.preceding_data[-1] == self.strong_mark[0]
+                ):
+                    strong = " " + self.strong_mark
+                    self.preceding_data += " "
+                else:
+                    strong = self.strong_mark
 
-            self.o(strong)
-            if start:
-                self.stressed = True
+                self.o(strong)
+                if start:
+                    self.stressed = True
 
         if tag in ["del", "strike", "s"] and not self.ignore_emphasis:
-            if start and self.preceding_data and self.preceding_data[-1] == "~":
-                strike = " ~~"
-                self.preceding_data += " "
+            if self.bypass_emphasis:
+                if start:
+                    self.o("<{}>".format(tag))
+                else:
+                    self.o("</{}>".format(tag))
             else:
-                strike = "~~"
+                if start and self.preceding_data and self.preceding_data[-1] == "~":
+                    strike = " ~~"
+                    self.preceding_data += " "
+                else:
+                    strike = "~~"
 
-            self.o(strike)
-            if start:
-                self.stressed = True
+                self.o(strike)
+                if start:
+                    self.stressed = True
 
         if self.google_doc:
             if not self.inheader:

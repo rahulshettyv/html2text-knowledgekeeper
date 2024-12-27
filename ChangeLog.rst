@@ -1,3 +1,10 @@
+2024.12.27
+=========
+----
+
+* Add support for bypass emphasis with ``--bypass-emphasis`` config option.
+* Add <hr> tag as emphasis.
+
 2024.2.26
 =========
 ----
