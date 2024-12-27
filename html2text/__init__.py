@@ -379,7 +379,7 @@ class HTML2Text(html.parser.HTMLParser):
             else:
                 self.o("  \n")
 
-        if tag == "hr" and start:
+        if tag == "hr" and start and not self.ignore_emphasis:
             self.p()
             self.o("* * *")
             self.p()
@@ -453,7 +453,7 @@ class HTML2Text(html.parser.HTMLParser):
             if start:
                 self.stressed = True
 
-        if tag in ["del", "strike", "s"]:
+        if tag in ["del", "strike", "s"] and not self.ignore_emphasis:
             if start and self.preceding_data and self.preceding_data[-1] == "~":
                 strike = " ~~"
                 self.preceding_data += " "
