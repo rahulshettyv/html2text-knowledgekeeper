@@ -1,3 +1,9 @@
+2025.2.27
+=========
+----
+
+* Configure list item indentation to 4 spaces by default.
+
 2024.12.27
 =========
 ----
