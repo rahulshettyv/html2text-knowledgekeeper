@@ -669,7 +669,7 @@ class HTML2Text(html.parser.HTMLParser):
                     parent_list = None
                     for list in self.list:
                         self.o(
-                            "   " if parent_list == "ol" and list.name == "ul" else "  "
+                            "    " if parent_list == "ol" and list.name == "ul" else "    "
                         )
                         parent_list = list.name
 
