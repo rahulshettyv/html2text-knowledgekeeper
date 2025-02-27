@@ -668,9 +668,10 @@ class HTML2Text(html.parser.HTMLParser):
                     # TODO: line up <ol><li>s > 9 correctly.
                     parent_list = None
                     for list in self.list:
-                        self.o(
-                            "    " if parent_list == "ol" and list.name == "ul" else "    "
-                        )
+                        if parent_list is None:
+                            self.o("")
+                        else:
+                            self.o("    ")
                         parent_list = list.name
 
                 if li.name == "ul":
