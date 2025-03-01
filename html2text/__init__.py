@@ -371,6 +371,8 @@ class HTML2Text(html.parser.HTMLParser):
                 pass
             elif self.split_next_td:
                 pass
+            elif self.list and len(self.list) > 0 and start:
+                self.o("    " * len(self.list))
             else:
                 self.p()
 
@@ -680,6 +682,8 @@ class HTML2Text(html.parser.HTMLParser):
                     li.num += 1
                     self.o(str(li.num) + ". ")
                 self.start = True
+            else:
+                self.o("\n")
 
         if tag in ["table", "tr", "td", "th"]:
             if self.ignore_tables:
